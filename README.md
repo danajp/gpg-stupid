@@ -14,4 +14,35 @@ environment variable `GPG_PUBLIC_KEYS_DIR` to this directory and the
 
 # Usage
 
-Run without arguments for usage.
+Run without arguments for usage. Or just read this:
+
+### add [DIR]
+
+Adds all the keys in the directory specified by DIR to your gpg
+keyring. If DIR is not passed, it's assumed to be the value of
+`GPG_PUBLIC_KEYS_DIR`.
+
+You need to run this before you can send/receive encrypted
+messages.
+
+Running this should always be safe. You'll automatically get new
+people's keys and/or update keys that have changed.
+
+### encrypt NAME
+
+Encrypt STDIN for the person that matches NAME. NAME can be an
+email address or someone's full name. GPG is smart about matching the
+right user. Writes the encrypted message to STDOUT.
+
+Example:
+
+    echo "a secret message" | gpg-stupid encrypt
+
+###  decrypt
+
+Decrypts STDIN with your private key and outputs the decrypted
+text to STDOUT.
+
+Example:
+
+    gpg-stupid decrypt < some-file-encrypted-with-my-public-key.txt
