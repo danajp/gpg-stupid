@@ -1,0 +1,113 @@
+#!/bin/bash
+
+readonly THIS=$(basename "$0")
+
+fatal() {
+  local msg
+
+  msg="$1"
+
+  echo "${msg}" >&2
+  exit 1
+}
+
+assert_key_exists() {
+  local name
+
+  name="$1"
+
+  if ! gpg --list-keys "${name}" &>/dev/null; then
+    fatal "Could not find a key matching '${name}'. Maybe you need to run add?"
+  fi
+}
+
+add() {
+  local dir
+
+  dir="${1:-$GPG_PUBLIC_KEYS_DIR}"
+
+  if [[ -z "${dir}" ]]; then
+    fatal "No key directory specified. You must specify a directory or set GPG_PUBLIC_KEYS_DIR"
+  fi
+
+  gpg --import "${dir}"
+}
+
+encrypt() {
+  local name
+
+  name="$1"
+
+  assert_key_exists "${name}"
+
+  gpg --armor --encrypt --recipient "${name}"
+}
+
+decrypt() {
+  gpg --decrypt
+}
+
+usage() {
+  cat 1>&2 <<EOF
+A simple wrapper around gpg
+
+Commands:
+
+  add [DIR]
+
+    Adds all the keys in the directory specified by DIR to your gpg
+    keyring. If DIR is not passed, it's assumed to be the value of
+    GPG_PUBLIC_KEYS_DIR.
+
+    You need to run this before you can send/receive encrypted
+    messages.
+
+    Running this should always be safe. You'll automatically get new
+    people's keys and/or update keys that have changed.
+
+  encrypt NAME
+
+    Encrypt STDIN for the person that matches NAME. NAME can be an
+    email address or someone's full name. GPG is smart about matching the
+    right user. Writes the encrypted message to STDOUT.
+
+    Example:
+
+    echo "a secret message" | $THIS encrypt
+
+  decrypt
+
+    Decrypts STDIN with your private key and outputs the decrypted
+    text to STDOUT.
+
+    Example:
+
+    $THIS decrypt < some-file-encrypted-with-my-public-key.txt
+
+EOF
+
+}
+
+main() {
+  local command
+
+  command="$1"
+  shift
+
+  case "${command}" in
+    add)
+      add "$@"
+      ;;
+    encrypt)
+      encrypt "$@"
+      ;;
+    decrypt)
+      decrypt "$@"
+      ;;
+    *)
+      usage
+      ;;
+  esac
+}
+
+main "$@"
