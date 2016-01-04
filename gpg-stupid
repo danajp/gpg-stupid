@@ -73,7 +73,7 @@ Commands:
 
     Example:
 
-    echo "a secret message" | $THIS encrypt
+    echo "a secret message" | $THIS encrypt john.doe@example.io
 
   decrypt
 

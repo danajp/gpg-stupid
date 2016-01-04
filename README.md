@@ -36,7 +36,7 @@ right user. Writes the encrypted message to STDOUT.
 
 Example:
 
-    echo "a secret message" | gpg-stupid encrypt
+    echo "a secret message" | gpg-stupid encrypt john.doe@example.io
 
 ###  decrypt
 
