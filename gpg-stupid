@@ -34,13 +34,14 @@ add() {
 }
 
 encrypt() {
-  local name
+  local name recipient_args
 
-  name="$1"
+  for name in "$@"; do
+    assert_key_exists "$name"
+    recipient_args="${recipient_args} --recipient $name"
+  done
 
-  assert_key_exists "${name}"
-
-  gpg --armor --encrypt --recipient "${name}"
+  gpg --armor --encrypt $recipient_args --always-trust
 }
 
 decrypt() {
@@ -65,11 +66,11 @@ Commands:
     Running this should always be safe. You'll automatically get new
     people's keys and/or update keys that have changed.
 
-  encrypt NAME
+  encrypt NAME [[NAME] NAME]
 
-    Encrypt STDIN for the person that matches NAME. NAME can be an
-    email address or someone's full name. GPG is smart about matching the
-    right user. Writes the encrypted message to STDOUT.
+    Encrypt STDIN for the people that match the specified NAMEs. NAME
+    can be an email address or someone's full name. GPG is smart about
+    matching the right user. Writes the encrypted message to STDOUT.
 
     Example:
 
